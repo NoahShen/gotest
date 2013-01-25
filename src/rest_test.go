@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	REST_URL = "http://api.cosm.com/v2/"
+	REST_URL = "https://api.cosm.com/v2/"
 	KEY      = "oMyWvwF_rWI8e5ULO1tW9pHAUOqSAKxSUm9nZDFIOGhwWT0g"
 )
 
