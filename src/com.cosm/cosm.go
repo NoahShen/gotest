@@ -1,4 +1,4 @@
-package rpc
+package cosm
 
 import (
 	"time"
@@ -24,20 +24,20 @@ const (
 )
 
 type Feed struct {
-	Title       string        `json:"title,omitempty"`
-	Id          string        `json:"id"`
-	UpdatedTime time.Time     `json:"updated,omitempty"`
-	CreatedTime time.Time     `json:"created,omitempty"`
-	Creator     string        `json:"creator"`
-	Url         string        `json:"feed"`
-	Status      Status        `json:"status"`
-	Description string        `json:"description,omitempty"`
-	Website     string        `json:"website,omitempty"`
-	Icon        string        `json:"icon,omitempty"`
-	Tags        *[]string     `json:"tags,omitempty"`
-	Location    *Location     `json:"location,omitempty"`
-	Datastreams *[]Datastream `json:"datastreams,omitempty"`
-	Private     bool          `json:"private,omitempty"`
+	Title       string       `json:"title,omitempty"`
+	Id          string       `json:"id,omitempty"`
+	UpdatedTime *time.Time   `json:"updated,omitempty"`
+	CreatedTime *time.Time   `json:"created,omitempty"`
+	Creator     string       `json:"creator,omitempty"`
+	Url         string       `json:"feed,omitempty"`
+	Status      Status       `json:"status,omitempty"`
+	Description string       `json:"description,omitempty"`
+	Website     string       `json:"website,omitempty"`
+	Icon        string       `json:"icon,omitempty"`
+	Tags        []string     `json:"tags,omitempty"`
+	Location    *Location    `json:"location,omitempty"`
+	Datastreams []Datastream `json:"datastreams,omitempty"`
+	Private     bool         `json:"private,omitempty"`
 }
 
 type Location struct {
@@ -51,14 +51,14 @@ type Location struct {
 }
 
 type Datastream struct {
-	Id           string       `json:"id"`
-	UpdatedTime  time.Time    `json:"at,omitempty"`
-	Tags         *[]string    `json:"tags,omitempty"`
-	Unit         *Unit        `json:"units,omitempty"`
-	MinValue     string       `json:"min_value,omitempty"`
-	MaxValue     string       `json:"max_value,omitempty"`
-	CurrentValue string       `json:"current_value,omitempty"`
-	Datapoints   *[]Datapoint `json:"datapoints,omitempty"`
+	Id           string      `json:"id"`
+	UpdatedTime  *time.Time  `json:"at,omitempty"`
+	Tags         []string    `json:"tags,omitempty"`
+	Unit         *Unit       `json:"units,omitempty"`
+	MinValue     string      `json:"min_value,omitempty"`
+	MaxValue     string      `json:"max_value,omitempty"`
+	CurrentValue string      `json:"current_value,omitempty"`
+	Datapoints   []Datapoint `json:"datapoints,omitempty"`
 }
 
 type Unit struct {
