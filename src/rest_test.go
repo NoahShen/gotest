@@ -58,7 +58,7 @@ func NoTestGetFeeds(t *testing.T) {
 	t.Log(location["domain"])
 }
 
-func TestUpdateFeeds(t *testing.T) {
+func NoTestUpdateFeeds(t *testing.T) {
 	datestreams := make([]cosm.Datastream, 0)
 	feed := &cosm.Feed{Datastreams: datestreams}
 	datestream := &cosm.Datastream{Id: "diskUsed", CurrentValue: "2"}
@@ -66,6 +66,25 @@ func TestUpdateFeeds(t *testing.T) {
 
 	var url = REST_URL + "feeds/" + FEEDID
 	req, e := createRequest(url, "PUT", feed, t)
+	if e != nil {
+		t.Log(e)
+		t.FailNow()
+	}
+
+	body, err := getResponeContent(req, t)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	t.Log(body)
+}
+
+func NoTestUpdateDatastreams(t *testing.T) {
+	datestream := &cosm.Datastream{CurrentValue: "4"}
+
+	var datastreamId = "diskUsed"
+	var url = REST_URL + "feeds/" + FEEDID + "/datastreams/" + datastreamId
+	req, e := createRequest(url, "PUT", datestream, t)
 	if e != nil {
 		t.Log(e)
 		t.FailNow()

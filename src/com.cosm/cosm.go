@@ -51,7 +51,7 @@ type Location struct {
 }
 
 type Datastream struct {
-	Id           string      `json:"id"`
+	Id           string      `json:"id,omitempty"`
 	UpdatedTime  *time.Time  `json:"at,omitempty"`
 	Tags         []string    `json:"tags,omitempty"`
 	Unit         *Unit       `json:"units,omitempty"`
