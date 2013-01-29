@@ -1,8 +1,10 @@
 package main
 
 import (
+	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 	"syscall"
 	"testing"
 )
@@ -72,7 +74,7 @@ func MemStat(t *testing.T) (*MemStatus, error) {
 	return mem, nil
 }
 
-func TestGetMemStatus(t *testing.T) {
+func NoTestGetMemStatus(t *testing.T) {
 	memStatus, err := MemStat(t)
 	if err != nil {
 		t.Log(err)
@@ -85,4 +87,21 @@ func TestGetMemStatus(t *testing.T) {
 	memoryUsedPercent := float64(memStatus.Used) / float64(memStatus.All)
 	formated := strconv.FormatFloat(memoryUsedPercent*100, 'f', 2, 64)
 	t.Log("Used:", formated, "%")
+}
+
+func TestGetLoadAverage(t *testing.T) {
+	out, err := exec.Command("uptime").Output()
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	uptimeResult := string(out)
+	t.Logf("The output is : %v\n", uptimeResult)
+	loadAverageStr := "load average:"
+	i := strings.Index(uptimeResult, loadAverageStr)
+	loadValue := uptimeResult[i+len(loadAverageStr):]
+	t.Logf("loadValue is : %v\n", loadValue)
+	splitsAverage := strings.Split(loadValue, ",")
+	oneMinuteLoad := strings.TrimSpace(splitsAverage[0])
+	t.Logf("oneMinuteLoad is : %v\n", oneMinuteLoad)
 }
