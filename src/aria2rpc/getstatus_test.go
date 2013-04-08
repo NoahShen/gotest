@@ -15,11 +15,13 @@ type Reply struct {
 	Message string
 }
 
-func NoTestAddUri(t *testing.T) {
+func TestAddUri(t *testing.T) {
 	method := "aria2.addUri"
 	var params = make([]interface{}, 2)
 	params[0] = make([]string, 1)
-	(params[0].([]string))[0] = "https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.8.4.tar.xz"
+	//(params[0].([]string))[0] = "https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.8.4.tar.xz"
+	(params[0].([]string))[0] = "http://bt.ktxp.com/torrents/2013/03/24/3a091e44394e2ec6345cc263accf31058eda504e.torrent"
+
 	params[1] = make(map[string]string)
 	(params[1].(map[string]string))["max-download-limit"] = "10K"
 
