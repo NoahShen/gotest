@@ -10,6 +10,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 )
 
 const (
@@ -62,106 +64,37 @@ func Speech2Text(voiceFile string) (string, float64, error) {
 }
 
 func Mp3ToFlac(mp3Url string) (string, error) {
-	return "", nil
+	mp3File, downloadFileErr := downloadFile(mp3Url)
+	if downloadFileErr != nil {
+		return "", downloadFileErr
+	}
+	flacPath, _ := filepath.Abs("voiceim.flac")
+	mp3Path, _ := filepath.Abs(mp3File.Name())
+	output, convertErr := exec.Command("ffmpeg", "-i", mp3Path, flacPath).Output()
+	if convertErr != nil {
+		return "", convertErr
+	}
+	log.Println("convert output: ", string(output))
+	os.Remove(mp3Path)
+	return flacPath, nil
+}
 
-	//requestXml := fmt.Sprintf(InsertQueueUrl, API_KEY, mp3Url)
+func downloadFile(fileUrl string) (*os.File, error) {
+	mp3File := "voiceim.mp3"
+	f, createFileErr := os.Create(mp3File)
+	defer f.Close()
+	if createFileErr != nil {
+		return nil, createFileErr
+	}
 
-	//buf := new(bytes.Buffer)
-	//w := multipart.NewWriter(buf)
-	//w.WriteField("queue", requestXml)
-	//convertReq, _ := http.NewRequest("POST", CONVERT_URL, buf)
-
-	////convertReq, _ := http.NewRequest("POST", CONVERT_URL, nil)
-	////convertReq.Form = make(url.Values)
-	////convertReq.Form.Set("queue", requestXml)
-
-	//fmt.Println(convertReq)
-	//convertResp, convertReqErr := http.DefaultClient.Do(convertReq)
-	//defer convertResp.Body.Close()
-	//if convertReqErr != nil {
-	//	return "", convertReqErr
-	//}
-	//convertRespBytes, readErr := ioutil.ReadAll(convertResp.Body)
-	//if readErr != nil {
-	//	return "", readErr
-	//}
-	//return string(convertRespBytes), nil
-	//keyId := utils.RandomString(14)
-	//buf := new(bytes.Buffer)
-	//w := multipart.NewWriter(buf)
-	//w.WriteField("APC_UPLOAD_PROGRESS", keyId)
-	//w.WriteField("storedOpt", "70")
-	//w.WriteField("FileOrURLFlag", "url")
-	//w.WriteField("download_url", fileUrl)
-	//w.WriteField("youtube_mode", "default")
-	//w.WriteField("input_format", ".mp3")
-	//w.WriteField("output_format", ".flac")
-
-	//convertReq, _ := http.NewRequest("POST", CONVERT_URL, buf)
-	//convertReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22")
-	//convertReq.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	//convertReq.Header.Set("Accept-Language", "en-US,en;q=0.5")
-	//convertReq.Header.Set("Accept-Encoding", "gzip, deflate")
-
-	//log.Println("convertReq:", convertReq)
-
-	//log.Println("Send convert request!")
-	//convertResp, convertReqErr := http.DefaultClient.Do(convertReq)
-	//defer convertResp.Body.Close()
-	//if convertReqErr != nil {
-	//	return "", convertReqErr
-	//}
-	//log.Println("Convert Response Status:", convertResp.Status)
-
-	//if convertResp.StatusCode != 200 {
-	//	return "", errors.New(convertResp.Status)
-	//}
-	//convertRespBytes, convertRespErr := ioutil.ReadAll(convertResp.Body)
-	//if convertRespErr != nil {
-	//	return "", convertRespErr
-	//}
-	//log.Println(string(convertRespBytes))
-
-	//for {
-	//	progressReq, _ := http.NewRequest("GET", PROGRESS_URL+keyId, nil)
-	//	progressReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22")
-	//	progressResp, progReqErr := http.DefaultClient.Do(progressReq)
-	//	defer progressResp.Body.Close()
-	//	if progReqErr != nil {
-	//		return "", progReqErr
-	//	}
-	//	bytes, readErr := ioutil.ReadAll(progressResp.Body)
-	//	if readErr != nil {
-	//		return "", readErr
-	//	}
-	//	progress := string(bytes)
-	//	//log.Println("Convert progress:", progress)
-	//	if progress == "100" {
-	//		break
-	//	}
-	//	time.Sleep(5000)
-	//}
-
-	//getFileReq, _ := http.NewRequest("GET", GET_FILE_URL+keyId, nil)
-	//getFileResp, getFileReqErr := http.DefaultClient.Do(getFileReq)
-	//defer getFileResp.Body.Close()
-	//if getFileReqErr != nil {
-	//	return "", getFileReqErr
-	//}
-	//bytes, readErr := ioutil.ReadAll(getFileResp.Body)
-	//if readErr != nil {
-	//	return "", readErr
-	//}
-	//html := string(bytes)
-	//log.Println("File download_html:", html)
-	//index := strings.Index(html, "http://dw4.convertfiles.com")
-	//if index == -1 {
-	//	return "", errors.New("Can not find downlaod file url")
-	//}
-	//endindex := strings.Index(html, ".flac")
-	//if endindex == -1 {
-	//	return "", errors.New("Can not find downlaod file url")
-	//}
-	//flacFileUrl := html[index : endindex+5]
-	//return flacFileUrl, nil
+	resp, downloadFileErr := http.Get(fileUrl)
+	defer resp.Body.Close()
+	if downloadFileErr != nil {
+		return nil, downloadFileErr
+	}
+	_, writeFileErr := io.Copy(f, resp.Body)
+	if writeFileErr != nil {
+		return nil, writeFileErr
+	}
+	return f, nil
 }
