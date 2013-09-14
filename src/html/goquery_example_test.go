@@ -8,7 +8,7 @@ import (
 
 // This example scrapes the 10 reviews shown on the home page of MetalReview.com,
 // the best metal review site on the web :) (and no, I'm not affiliated to them!)
-func TestExampleScrape_MetalReview(t *testing.T) {
+func _TestExampleScrape_MetalReview(t *testing.T) {
 	// Load the HTML document (in real use, the type would be *goquery.Document)
 	var doc *goquery.Document
 	var e error
