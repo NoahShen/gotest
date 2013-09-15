@@ -2,6 +2,7 @@ package easyread
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -18,9 +19,21 @@ const (
 )
 
 type SubSummary struct {
-	Id   string
-	Name string
-	Type string
+	XMLName xml.Name          `xml:"usrsubsummary"`
+	Entries []SubSummaryEntry `xml:"entry"`
+}
+
+type SubSummaryEntry struct {
+	XMLName xml.Name    `xml:"entry"`
+	Id      string      `xml:"id"`
+	Name    string      `xml:"title"`
+	Status  EntryStatus `xml:"entry_status"`
+}
+
+type EntryStatus struct {
+	XMLName xml.Name `xml:"entry_status"`
+	Type    string   `xml:"type,attr"`
+	Style   string   `xml:"style,attr"`
 }
 
 type EasyreadSession struct {
@@ -60,20 +73,23 @@ func (self *EasyreadSession) login(username, password string) error {
 	return nil
 }
 
-func (self *EasyreadSession) getSubSummary() ([]SubSummary, error) {
-	subsummaries := make([]SubSummary, 0)
+func (self *EasyreadSession) getSubSummary() (SubSummary, error) {
+	var subSummar = SubSummary{}
 	url := fmt.Sprintf(GET_SUBSUMMARY_URL, time.Now().UTC().Unix())
 	req := self.createHttpRequest("GET", url, "", nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return subsummaries, err
+		return subSummar, err
 	}
 	content, respErr := self.getResponseContent(resp)
 	if respErr != nil {
-		return subsummaries, respErr
+		return subSummar, respErr
 	}
-	fmt.Println("content:", string(content))
-	return subsummaries, nil
+	unmarshalErr := xml.Unmarshal(content, &subSummar)
+	if unmarshalErr != nil {
+		return subSummar, unmarshalErr
+	}
+	return subSummar, nil
 }
 
 func (self *EasyreadSession) createHttpRequest(method, url, contentType string, body io.Reader) *http.Request {

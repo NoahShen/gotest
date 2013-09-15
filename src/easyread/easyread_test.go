@@ -21,5 +21,9 @@ func TestGetSubSummary(t *testing.T) {
 	}
 	fmt.Println("userId:", session.UserId)
 	fmt.Println("username:", session.Username)
-	session.getSubSummary()
+	subSummary, getSummaryErr := session.getSubSummary()
+	if getSummaryErr != nil {
+		t.Fatal(getSummaryErr)
+	}
+	fmt.Printf("subsummary: %v", subSummary)
 }
