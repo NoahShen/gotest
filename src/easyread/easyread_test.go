@@ -1,7 +1,10 @@
 package easyread
 
 import (
+	"code.google.com/p/go.net/html"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"strings"
 	"testing"
 )
 
@@ -28,7 +31,7 @@ func TestGetSubSummary(t *testing.T) {
 	fmt.Printf("subsummary: %v\n", subSummary)
 	fmt.Println("============")
 
-	newsFeed, newsSourceErr := session.GetNewsSource(subSummary.Entries[0].Id)
+	newsFeed, newsSourceErr := session.GetNewsSource(subSummary.Entries[1].Id)
 	if newsSourceErr != nil {
 		t.Fatal(newsSourceErr)
 	}
@@ -36,4 +39,21 @@ func TestGetSubSummary(t *testing.T) {
 		fmt.Printf("newsEntry: %+v\n", newsEntry)
 	}
 
+	fmt.Println("============")
+
+	articleFeed, newsSourceErr := session.GetArticle(newsFeed.Entries[1].Id)
+	fmt.Printf("articleFeed: %+v\n", articleFeed)
+
+	root, htmlParseErr := html.Parse(strings.NewReader(articleFeed.Entry.Content.Content))
+	if htmlParseErr != nil {
+		t.Fatal(htmlParseErr)
+	}
+
+	fmt.Println("============")
+
+	doc := goquery.NewDocumentFromNode(root)
+	contentObj := doc.Find("div.fs-content")
+	content := contentObj.Text()
+	content = strings.Replace(content, " ", "", -1)
+	fmt.Println("doc text:", content)
 }

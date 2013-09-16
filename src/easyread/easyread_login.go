@@ -17,6 +17,7 @@ const (
 	LOGIN_URL                 = "https://easyread.163.com/sns/login/login.atom"
 	GET_SUBSUMMARY_URL        = "http://easyread.163.com/user/subsummary.atom?rand=%d"
 	GET_SUBSUMMARY_SOURCE_URL = "http://easyread.163.com/news/source/index.atom?id=%s"
+	GET_ARTICLE_URL           = "http://cdn.easyread.163.com/news/article.atom?uuid=%s"
 )
 
 type SubSummary struct {
@@ -55,6 +56,27 @@ type NewsEntry struct {
 }
 
 type EntryContent struct {
+	XMLName     xml.Name `xml:"content"`
+	Content     string   `xml:",chardata"`
+	ContentType string   `xml:"type,attr"`
+}
+
+type ArticleFeed struct {
+	XMLName xml.Name     `xml:"feed"`
+	Id      string       `xml:"id"`
+	Title   string       `xml:"title"`
+	Entry   ArticleEntry `xml:"entry"`
+}
+
+type ArticleEntry struct {
+	XMLName     xml.Name       `xml:"entry"`
+	Id          string         `xml:"id"`
+	Title       string         `xml:"title"`
+	UpdatedDate string         `xml:"updated"`
+	Content     ArticleContent `xml:"content"`
+}
+
+type ArticleContent struct {
 	XMLName     xml.Name `xml:"content"`
 	Content     string   `xml:",chardata"`
 	ContentType string   `xml:"type,attr"`
@@ -99,6 +121,25 @@ func (self *EasyreadSession) Login(username, password string) error {
 	self.cookies = cookies
 
 	return nil
+}
+
+func (self *EasyreadSession) GetArticle(atricleId string) (ArticleFeed, error) {
+	var articleFeed = ArticleFeed{}
+	url := fmt.Sprintf(GET_ARTICLE_URL, atricleId)
+	req := self.createHttpRequest("GET", url, "", nil)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return articleFeed, err
+	}
+	content, respErr := self.getResponseContent(resp)
+	if respErr != nil {
+		return articleFeed, respErr
+	}
+	unmarshalErr := xml.Unmarshal(content, &articleFeed)
+	if unmarshalErr != nil {
+		return articleFeed, unmarshalErr
+	}
+	return articleFeed, nil
 }
 
 func (self *EasyreadSession) GetNewsSource(summaryEntryId string) (NewsFeed, error) {
